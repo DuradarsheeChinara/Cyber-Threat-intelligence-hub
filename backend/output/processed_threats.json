@@ -1,0 +1,41 @@
+[
+    {
+        "threat_id": "CVE-2026-0001",
+        "summary": "**CVE-2026-0001: Critical Remote Code Execution (RCE) in Acme Web Gateway appliances.**\n\n*   **Impact:** Unauthenticated remote attackers can execute arbitrary commands on vulnerable devices.\n*   **Exploitation:** A deserialization flaw in the administrative API allows for easy exploitation.\n*   **Affected Technology:** Acme Security Web Gateway appliances.\n*   **Urgency:** CVSS 9.8, **actively exploited in the wild.** Immediate action is required.",
+        "classification": {
+            "category": "Remote Code Execution",
+            "confidence": 0.8173
+        },
+        "embedding_dimensions": 384,
+        "risk": {
+            "risk_score": 96,
+            "risk_level": "Critical"
+        }
+    },
+    {
+        "threat_id": "CVE-2026-0002",
+        "summary": "**CVE-2026-0002: Stored Cross-Site Scripting (XSS) in Northstar Apps HelpDesk Pro.**\n\n*   **Impact:** A standard user can inject malicious JavaScript that executes in an administrator's browser session, potentially leading to session compromise, data theft, or further attacks from the admin's context.\n*   **Exploitation:** An authenticated standard user stores malicious JavaScript within ticket comments due to improper input sanitization. The script activates when an administrator views the compromised comment.\n*   **Affected Technology:** Northstar Apps HelpDesk Pro.\n*   **Urgency:** CVSS 6.1 (Medium). No known active exploitation (KEV: False) as of 2026-06-28, but immediate review and patching/mitigation are recommended to prevent high-impact administrative compromise.",
+        "classification": {
+            "category": "Cross Site Scripting",
+            "confidence": 0.8545
+        },
+        "embedding_dimensions": 384,
+        "risk": {
+            "risk_score": 47,
+            "risk_level": "Medium"
+        }
+    },
+    {
+        "threat_id": "CVE-2026-0003",
+        "summary": "**CVE-2026-0003: Authentication Bypass (CVSS 8.6) in Contoso Cloud Identity Connector.**\n\n**Impact/Exploitation:** A logic error in token validation allows attackers to bypass authentication and gain unauthorized access to restricted tenant synchronization APIs. This vulnerability is **actively being exploited in the wild.**\n\n**Affected Technology:** Contoso Cloud Identity Connector.\n\n**Urgency:** **Critical.** Immediate investigation and mitigation are required due to the high CVSS score and confirmed active exploitation.",
+        "classification": {
+            "category": "Authentication Bypass",
+            "confidence": 0.951
+        },
+        "embedding_dimensions": 384,
+        "risk": {
+            "risk_score": 89,
+            "risk_level": "High"
+        }
+    }
+]
