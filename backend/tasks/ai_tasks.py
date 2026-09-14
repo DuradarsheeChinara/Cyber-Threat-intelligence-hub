@@ -93,6 +93,36 @@ def process_sample_threats() -> list[dict[str, Any]]:
     return results
 
 
+@celery_app.task(name="backend.tasks.ai_tasks.process_threat_task")
+def process_threat_task(threat_id: str) -> dict[str, Any]:
+    """Process one persisted API threat without blocking its HTTP request."""
+    from app import crud
+    from app.database import Base, SessionLocal, engine
+    from app.services.analysis import run_analysis
+
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        threat = crud.get_threat(db, threat_id)
+        if threat is None:
+            logger.warning("Threat %s disappeared before AI processing.", threat_id)
+            return {"threat_id": threat_id, "status": "not_found"}
+        payload = {
+            "id": threat.id, "title": threat.title, "vendor": threat.vendor,
+            "product": threat.product, "description": threat.description,
+            "cvss": float(threat.cvss) if threat.cvss is not None else None,
+            "kev": threat.kev, "published": str(threat.published) if threat.published else None,
+        }
+        result = run_analysis(payload)
+        crud.create_ai_analysis(db, threat_id, result)
+        return {"threat_id": threat_id, "status": "completed", "risk": result["risk_score"]}
+    except Exception as exc:
+        logger.exception("AI pipeline failed for persisted threat %s: %s", threat_id, exc)
+        return {"threat_id": threat_id, "status": "failed", "error": str(exc)}
+    finally:
+        db.close()
+
+
 @celery_app.task(name="backend.tasks.ai_tasks.process_sample_threats_task")
 def process_sample_threats_task() -> list[dict[str, Any]]:
     """Celery task entry point for the sample threat AI pipeline."""
