@@ -11,19 +11,34 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from backend.ai.classifier import classify
+from backend.ai.classifier import CATEGORIES as MODEL_CATEGORIES, _get_classifier, classify
 from backend.services.risk_engine import calculate_risk
 
 CATEGORIES = ["Remote Code Execution", "Denial of Service", "Privilege Escalation", "SQL Injection", "Other"]
 
+
+def _batch_classify(texts: list[str]) -> list[dict]:
+    """Use the existing zero-shot model in batches for practical CPU evaluation."""
+    if not texts:
+        return []
+    results = _get_classifier()(texts, candidate_labels=MODEL_CATEGORIES, multi_label=False, batch_size=16)
+    if isinstance(results, dict):
+        results = [results]
+    return [
+        {"category": item["labels"][0], "confidence": round(float(item["scores"][0]), 4)}
+        if item.get("labels") and item.get("scores") else {"category": "Other", "confidence": 0.0}
+        for item in results
+    ]
+
 def evaluate(rows: list[dict[str, str]], predictor: Callable[[str], dict] = classify) -> dict:
     matrix = {actual: {predicted: 0 for predicted in CATEGORIES} for actual in CATEGORIES}
     correct = total = 0; absolute_errors: list[float] = []
-    for row in rows:
+    texts = ["\n".join(filter(None, [row.get("title"), row.get("description"), row.get("cwe")])) for row in rows]
+    predictions = _batch_classify(texts) if predictor is classify else [predictor(text) for text in texts]
+    for row, prediction in zip(rows, predictions):
         actual = row.get("true_category")
         if actual not in CATEGORIES: continue
-        text = "\n".join(filter(None, [row.get("title"), row.get("description"), row.get("cwe")]))
-        prediction = predictor(text); predicted = prediction.get("category", "Other")
+        predicted = prediction.get("category", "Other")
         if predicted not in CATEGORIES: predicted = "Other"
         matrix[actual][predicted] += 1; total += 1; correct += actual == predicted
         if row.get("true_risk_score"):
