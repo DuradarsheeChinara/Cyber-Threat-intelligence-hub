@@ -1,0 +1,16 @@
+﻿dataset_split,category,count
+train,Remote Code Execution,489
+train,Denial of Service,489
+train,Privilege Escalation,489
+train,SQL Injection,489
+train,Other,489
+validation,Remote Code Execution,106
+validation,Denial of Service,106
+validation,Privilege Escalation,106
+validation,SQL Injection,106
+validation,Other,106
+test,Remote Code Execution,105
+test,Denial of Service,105
+test,Privilege Escalation,105
+test,SQL Injection,105
+test,Other,105
