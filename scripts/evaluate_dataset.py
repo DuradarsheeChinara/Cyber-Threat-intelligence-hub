@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from backend.ai.classifier import CATEGORIES as MODEL_CATEGORIES, _get_classifier, classify
+from backend.ai.classifier import _get_classifier, classify
 from backend.services.risk_engine import calculate_risk
 
 CATEGORIES = ["Remote Code Execution", "Denial of Service", "Privilege Escalation", "SQL Injection", "Other"]
@@ -21,7 +21,10 @@ def _batch_classify(texts: list[str]) -> list[dict]:
     """Use the existing zero-shot model in batches for practical CPU evaluation."""
     if not texts:
         return []
-    results = _get_classifier()(texts, candidate_labels=MODEL_CATEGORIES, multi_label=False, batch_size=16)
+    # Evaluation has five ground-truth categories.  Restricting candidates to
+    # that project taxonomy preserves the zero-shot model while avoiding
+    # computing unrelated production-only labels and mapping them to Other.
+    results = _get_classifier()(texts, candidate_labels=CATEGORIES, multi_label=False, batch_size=64)
     if isinstance(results, dict):
         results = [results]
     return [
