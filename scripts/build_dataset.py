@@ -171,32 +171,40 @@ def get_cvss_score(cve):
         cvss_data = item.get("cvssData", {})
         score = cvss_data.get("baseScore")
 
-        if isinstance(score, (int, float)):
-            possible_scores.append(score)
+        try:
+            possible_scores.append(float(score))
+        except (TypeError, ValueError):
+            pass
 
     # CVSS v3.1
     for item in metrics.get("cvssMetricV31", []):
         cvss_data = item.get("cvssData", {})
         score = cvss_data.get("baseScore")
 
-        if isinstance(score, (int, float)):
-            possible_scores.append(score)
+        try:
+            possible_scores.append(float(score))
+        except (TypeError, ValueError):
+            pass
 
     # CVSS v3.0
     for item in metrics.get("cvssMetricV30", []):
         cvss_data = item.get("cvssData", {})
         score = cvss_data.get("baseScore")
 
-        if isinstance(score, (int, float)):
-            possible_scores.append(score)
+        try:
+            possible_scores.append(float(score))
+        except (TypeError, ValueError):
+            pass
 
     # CVSS v2
     for item in metrics.get("cvssMetricV2", []):
         cvss_data = item.get("cvssData", {})
         score = cvss_data.get("baseScore")
 
-        if isinstance(score, (int, float)):
-            possible_scores.append(score)
+        try:
+            possible_scores.append(float(score))
+        except (TypeError, ValueError):
+            pass
 
     if not possible_scores:
         return ""

@@ -15,9 +15,10 @@ from google.genai import types
 logger = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "summary.txt"
-DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+DEFAULT_GEMINI_MODEL = "gemini-3.6-flash"
 REQUEST_TIMEOUT_MILLISECONDS = 60_000
 RETIRED_GEMINI_MODELS = {
+    "gemini-2.5-flash",
     "gemini-1.5-flash",
     "gemini-1.5-flash-latest",
     "gemini-1.5-pro",

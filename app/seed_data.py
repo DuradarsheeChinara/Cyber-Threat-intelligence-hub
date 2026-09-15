@@ -22,6 +22,11 @@ def _date(value: str | None) -> date | None:
     try: return date.fromisoformat(value) if value else None
     except ValueError: return None
 
+def _bounded(value: str | None, limit: int) -> str | None:
+    """Keep indexed display columns within their schema bounds; raw data is retained."""
+    value = (value or "").strip()
+    return value[:limit] or None
+
 def import_dataset(db: Session, csv_path: Path, limit: int | None = None) -> dict[str, int]:
     """Insert a CSV once per CVE natural key; preserve source and ground truth."""
     inserted = skipped = invalid = 0
@@ -33,8 +38,9 @@ def import_dataset(db: Session, csv_path: Path, limit: int | None = None) -> dic
             if crud.get_threat(db, cve_id):
                 skipped += 1; continue
             db.add(models.Threat(
-                id=cve_id, title=row.get("title") or cve_id, vendor=row.get("vendor") or None,
-                product=row.get("product") or None, description=row["description"], cvss=_float(row.get("cvss")),
+                id=cve_id, title=_bounded(row.get("title"), 255) or cve_id,
+                vendor=_bounded(row.get("vendor"), 100), product=_bounded(row.get("product"), 150),
+                description=row["description"], cvss=_float(row.get("cvss")),
                 kev=str(row.get("kev", "")).lower() == "true", published=_date(row.get("published")),
                 source="NVD", source_payload={
                     "cwe": row.get("cwe", ""),
@@ -42,7 +48,7 @@ def import_dataset(db: Session, csv_path: Path, limit: int | None = None) -> dic
                     "raw_record": dict(row),
                 },
                 true_category=row.get("true_category") or None, true_risk_score=_float(row.get("true_risk_score")),
-                cwe=row.get("cwe") or None, dataset_split=row.get("dataset_split") or None,
+                cwe=_bounded(row.get("cwe"), 255), dataset_split=_bounded(row.get("dataset_split"), 20),
             ))
             inserted += 1
             if limit and inserted >= limit: break
