@@ -222,11 +222,12 @@ cd "C:\Users\DURA\Desktop\Cyber Threat\Cyber-Threat-Intelligence-Hub\frontend"
 npm run dev
 ```
 
-Open http://localhost:5173. The dashboard talks to
-`http://localhost:8000/api/v1` by default. Override it only when necessary:
+Open http://localhost:5173, create an analyst account, and sign in. The
+dashboard talks to `http://127.0.0.1:8000/api/v1` by default. Override it in
+`frontend/.env` when necessary:
 
 ```powershell
-$env:VITE_API_URL="http://localhost:8000/api/v1"
+Set-Content .env 'VITE_API_URL=http://localhost:8000/api/v1'
 npm run dev
 ```
 
@@ -262,14 +263,16 @@ The scan endpoints do not require a user account because they do not persist a
 submission. Keep the app bound to `127.0.0.1` unless you add authentication,
 rate limits, and stronger upload controls.
 
-### Add a threat through Swagger UI
+### Create an account and add a threat
 
-1. Open http://localhost:8000/docs.
-2. Call `POST /api/v1/auth/register` with a username and password.
-3. Copy the returned `access_token`.
-4. Click **Authorize** and enter `Bearer YOUR_TOKEN`.
-5. Use `POST /api/v1/threats/` to create a CVE-style threat record.
-6. With the worker running, the API queues analysis. Refresh the dashboard or
+1. Open http://localhost:5173 and choose **Create Account**. Registration
+   creates an API account and signs you in automatically.
+2. To add a threat through Swagger UI, open http://localhost:8000/docs.
+3. Call `POST /api/v1/auth/login` (or register) with the same username and
+   password, copy `access_token`, then click **Authorize** and enter
+   `Bearer YOUR_TOKEN`.
+4. Use `POST /api/v1/threats/` to create a CVE-style threat record.
+5. With the worker running, the API queues analysis. Refresh the dashboard or
    call `GET /api/v1/threats/{threat_id}` to see the completed result.
 
 Example payload:
